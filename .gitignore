@@ -72,3 +72,4 @@ Thumbs.db
 *.exe
 build/
 build/*
+build/SMC_Minecraft_Launcher

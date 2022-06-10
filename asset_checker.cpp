@@ -101,6 +101,24 @@ int AssetChecker::checkAsset()
                     }
                     else
                     { // redownload assetJson
+                        QNetworkAccessManager *httpManager = new QNetworkAccessManager();
+                        QNetworkRequest getRequest;
+                        QNetworkReply *getReply;
+                        QEventLoop eventLoop;
+                        QObject::connect(httpManager, SIGNAL(finished(QNetworkReply *)), &eventLoop, SLOT(quit()));
+                        getRequest.setUrl(gameJson.object().value("assetIndex").toObject().value("url").toString());
+                        getRequest.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
+                        getReply = httpManager->get(getRequest);
+                        eventLoop.exec();
+                        if (getReply->error() == QNetworkReply::NoError)
+                        {
+                            assetJsonFile.open(QIODevice::WriteOnly);
+                            assetJsonFile.write(getReply->readAll());
+                            assetJsonFile.close();
+                            return checkAsset();
+                        }
+                        else
+                            return cannotGetIndex;
                     }
                 }
                 else
@@ -108,6 +126,24 @@ int AssetChecker::checkAsset()
             }
             else
             { // redownload assetJson
+                QNetworkAccessManager *httpManager = new QNetworkAccessManager();
+                QNetworkRequest getRequest;
+                QNetworkReply *getReply;
+                QEventLoop eventLoop;
+                QObject::connect(httpManager, SIGNAL(finished(QNetworkReply *)), &eventLoop, SLOT(quit()));
+                getRequest.setUrl(gameJson.object().value("assetIndex").toObject().value("url").toString());
+                getRequest.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
+                getReply = httpManager->get(getRequest);
+                eventLoop.exec();
+                if (getReply->error() == QNetworkReply::NoError)
+                {
+                    assetJsonFile.open(QIODevice::WriteOnly);
+                    assetJsonFile.write(getReply->readAll());
+                    assetJsonFile.close();
+                    return checkAsset();
+                }
+                else
+                    return cannotGetIndex;
             }
         }
         else

@@ -11,6 +11,10 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 #include <QCryptographicHash>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QEventLoop>
 
 const QByteArray GAME_VERSION = "1.17.1";
 const QByteArray GAME_HASH = "8d9b65467c7913fcf6f5b2e729d44a1e00fde150";
