@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QList>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -38,20 +39,27 @@ public:
         fileStatus status;
     };
 
-    fileStatus checkFile(QString path, QByteArray sha1);
+    fileStatus checkFile(QString path, QString sha1);
 
-    QFile gameFile, gameJsonFile, assetJsonFile;
+    QFile gameFile, gameJsonFile;
 
     Q_INVOKABLE int checkGame();
     Q_INVOKABLE int checkGameJson();
 
     QList<File> assetList, libraryList;
+    QFile assetJsonFile;
     enum assetStatus
     {
         cannotGetIndex = 4,
         assetUnreadable = 5,
         assetBroken = 6,
         assetFine = 7
+    };
+    enum libraryStatus
+    {
+        libraryUnreadable = 8,
+        libraryBroken = 9,
+        libraryFine = 10
     };
     Q_INVOKABLE int checkAsset();
     Q_INVOKABLE int checkLibrary();
