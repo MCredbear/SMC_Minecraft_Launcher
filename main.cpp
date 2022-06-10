@@ -4,6 +4,9 @@
 #include <QLocale>
 #include <QTranslator>
 
+#include "downloader.h"
+#include "asset_checker.h"
+
 int main(int argc, char *argv[])
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -20,6 +23,9 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+    AssetChecker assetChecker;
+    qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkAsset();
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
