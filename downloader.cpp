@@ -73,7 +73,7 @@ void Downloader::onThreadCompleted()
         Thread *thread = new Thread(this, &downloadList->at(progress + threads - 1));
         thread->start();
     }
-    else
+    if (progress == total)
     {
         status = completed;
         emit stopped();
@@ -95,7 +95,7 @@ int Downloader::startDownload(QList<File> *downloadList)
         status = progressing;
         QEventLoop eventLoop;
         connect(this, &Downloader::stopped, &eventLoop, &QEventLoop::quit);
-        for (int i = 0; (i < threads) & (i < total); i++)
+        for (int i = 0; i < std::min(threads, total); i++)
         {
             if (status = progressing)
             {
@@ -107,7 +107,8 @@ int Downloader::startDownload(QList<File> *downloadList)
         }
         eventLoop.exec();
     }
-    else status = completed;
+    else
+        status = completed;
 
     return status;
 }
