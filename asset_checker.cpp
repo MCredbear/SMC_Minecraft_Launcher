@@ -76,8 +76,8 @@ int AssetChecker::checkAsset()
                         {
                             if (assetJsonData.mid(i, 4) == "hash")
                             {
-                                fileStatus checkFileResult = checkFile(".minecraft/assets/objects/" + assetJsonData.mid(i + 8, 2) + "/" + assetJsonData.mid(i + 8, 40),
-                                                                       assetJsonData.mid(i + 8, 40));
+                                int checkFileResult = checkFile(".minecraft/assets/objects/" + assetJsonData.mid(i + 8, 2) + "/" + assetJsonData.mid(i + 8, 40),
+                                                                assetJsonData.mid(i + 8, 40));
                                 assetList.append(File(QString("http://resources.download.minecraft.net/" + assetJsonData.mid(i + 8, 2) + "/" + assetJsonData.mid(i + 8, 40)).replace("http://resources.download.minecraft.net", "https://download.mcbbs.net/assets"),
                                                       QString(".minecraft/assets/objects/" + assetJsonData.mid(i + 8, 2) + "/" + assetJsonData.mid(i + 8, 40)),
                                                       assetJsonData.mid(i + 8, 40),
@@ -112,10 +112,21 @@ int AssetChecker::checkAsset()
                         eventLoop.exec();
                         if (getReply->error() == QNetworkReply::NoError)
                         {
-                            assetJsonFile.open(QIODevice::WriteOnly);
-                            assetJsonFile.write(getReply->readAll());
-                            assetJsonFile.close();
-                            return checkAsset();
+                            QFileInfo assetJsonFileInfo(assetJsonFile);
+                            QDir dir;
+                            if (dir.mkpath(assetJsonFile.fileName()))
+                            {
+                                if (assetJsonFile.open(QIODevice::WriteOnly))
+                                {
+                                    assetJsonFile.write(getReply->readAll());
+                                    assetJsonFile.close();
+                                    return checkAsset();
+                                }
+                                else
+                                    return cannotGetIndex;
+                            }
+                            else
+                                return cannotGetIndex;
                         }
                         else
                             return cannotGetIndex;
@@ -137,10 +148,21 @@ int AssetChecker::checkAsset()
                 eventLoop.exec();
                 if (getReply->error() == QNetworkReply::NoError)
                 {
-                    assetJsonFile.open(QIODevice::WriteOnly);
-                    assetJsonFile.write(getReply->readAll());
-                    assetJsonFile.close();
-                    return checkAsset();
+                    QFileInfo assetJsonFileInfo(assetJsonFile);
+                    QDir dir;
+                    if (dir.mkpath(assetJsonFileInfo.path()))
+                    {
+                        if (assetJsonFile.open(QIODevice::WriteOnly))
+                        {
+                            assetJsonFile.write(getReply->readAll());
+                            assetJsonFile.close();
+                            return checkAsset();
+                        }
+                        else
+                            return cannotGetIndex;
+                    }
+                    else
+                        return cannotGetIndex;
                 }
                 else
                     return cannotGetIndex;
@@ -168,8 +190,8 @@ int AssetChecker::checkLibrary()
         {
             for (int i = 0; i < gameJson.object().value("libraries").toArray().count(); i++)
             {
-                fileStatus checkFileResult = checkFile(".minecraft/libraries/" + gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("path").toString(),
-                                                       gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("sha1").toString());
+                int checkFileResult = checkFile(".minecraft/libraries/" + gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("path").toString(),
+                                                gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("sha1").toString());
 
                 switch (checkFileResult)
                 {
@@ -198,7 +220,7 @@ int AssetChecker::checkLibrary()
         return checkLibraryResult;
 }
 
-AssetChecker::File::File(QString url, QString path, QByteArray sha1, fileStatus status)
+File::File(QString url, QString path, QByteArray sha1, int status)
 {
     this->url = url;
     this->path = path;
@@ -206,7 +228,7 @@ AssetChecker::File::File(QString url, QString path, QByteArray sha1, fileStatus 
     this->status = status;
 }
 
-AssetChecker::fileStatus AssetChecker::checkFile(QString path, QString sha1)
+int AssetChecker::checkFile(QString path, QString sha1)
 {
     QFile file(path);
     if (file.exists())
@@ -223,4 +245,16 @@ AssetChecker::fileStatus AssetChecker::checkFile(QString path, QString sha1)
     }
     else
         return unexisted;
+}
+
+int AssetChecker::startDownload()
+{
+    QList<File> downloadList;
+    for (int i = 0; i < assetList.length(); i++)
+        if (assetList.at(i).status != fine)
+            downloadList.append(assetList.at(i));
+    for (int i = 0; i < libraryList.length(); i++)
+        if (libraryList.at(i).status != fine)
+            downloadList.append(libraryList.at(i));
+    return downloader->startDownload(&downloadList);
 }

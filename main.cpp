@@ -25,7 +25,10 @@ int main(int argc, char *argv[])
     }
 
     AssetChecker assetChecker;
-    qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkLibrary();
+    qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkAsset() << assetChecker.checkLibrary();
+    Downloader downloader;
+    assetChecker.downloader = &downloader;
+    qDebug()<<assetChecker.startDownload();
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
