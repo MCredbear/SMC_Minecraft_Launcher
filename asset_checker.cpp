@@ -208,7 +208,7 @@ int AssetChecker::checkLibrary()
                 }
                 libraryList.append(File(gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("url").toString().replace("https://libraries.minecraft.net", "https://download.mcbbs.net/maven"),
                                         ".minecraft/libraries/" + gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("path").toString(),
-                                        gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("sha1").toString().toUtf8(),
+                                        gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("artifact").toObject().value("sha1").toString(),
                                         checkFileResult));
             }
             return checkLibraryResult;
@@ -220,7 +220,65 @@ int AssetChecker::checkLibrary()
         return checkLibraryResult;
 }
 
-File::File(QString url, QString path, QByteArray sha1, int status)
+int AssetChecker::checkNativeLibrary()
+{
+#ifdef Q_OS_LINUX
+    const QString nativeOS = "natives-linux";
+#endif
+#ifdef Q_OS_WINDOWS
+    const QString nativeOS = "natives-windows";
+#endif
+#ifdef Q_OS_OSX
+    const QString nativeOS = "natives-macos";
+#endif
+    int checkLibraryResult = libraryFine;
+    int checkGameJsonResult = checkGameJson();
+    if (checkGameJsonResult == AssetChecker::fine)
+    {
+        gameJsonFile.open(QIODevice::ReadOnly);
+        QByteArray gameJsonData = gameJsonFile.readAll();
+        gameJsonFile.close();
+        QJsonParseError jsonError;
+        QJsonDocument gameJson = QJsonDocument::fromJson(gameJsonData, &jsonError);
+        if (jsonError.error == QJsonParseError::NoError)
+        {
+            for (int i = 0; i < gameJson.object().value("libraries").toArray().count(); i++)
+            {
+                if (gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().contains("classifiers"))
+                    if (gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().contains(nativeOS))
+                    {
+                        int checkFileResult = checkFile(".minecraft/libraries/" + gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("path").toString(),
+                                                        gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("sha1").toString());
+
+                        switch (checkFileResult)
+                        {
+                        case unexisted:
+                            checkLibraryResult = libraryBroken;
+                            break;
+                        case broken:
+                            checkLibraryResult = libraryBroken;
+                            break;
+                        case unreadable:
+                            checkLibraryResult = libraryUnreadable;
+                            return checkLibraryResult;
+                            break;
+                        }
+                        libraryList.append(File(gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("url").toString().replace("https://libraries.minecraft.net", "https://download.mcbbs.net/maven"),
+                                                ".minecraft/libraries/" + gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("path").toString(),
+                                                gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("sha1").toString(),
+                                                checkFileResult));
+                    }
+            }
+            return checkLibraryResult;
+        }
+        else
+            return broken;
+    }
+    else
+        return checkLibraryResult;
+}
+
+File::File(QString url, QString path, QString sha1, int status)
 {
     this->url = url;
     this->path = path;
@@ -256,5 +314,7 @@ int AssetChecker::startDownload()
     for (int i = 0; i < libraryList.length(); i++)
         if (libraryList.at(i).status != fine)
             downloadList.append(libraryList.at(i));
+    for (int i = 0; i < downloadList.length(); i++)
+        qDebug() << downloadList.at(i).url;
     return downloader->startDownload(&downloadList);
 }

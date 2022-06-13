@@ -27,9 +27,9 @@ const QByteArray GAME_JSON_HASH = "a769e66272ae058c60c27a11b5adb04d7065884a";
 class File
 {
 public:
-    File(QString url, QString path, QByteArray sha1, int status);
+    File(QString url, QString path, QString sha1, int status);
     QString url, path;
-    QByteArray sha1;
+    QString sha1;
     enum fileStatus
     {
         unexisted = 0,
@@ -78,6 +78,7 @@ public:
     };
     Q_INVOKABLE int checkAsset();
     Q_INVOKABLE int checkLibrary();
+    Q_INVOKABLE int checkNativeLibrary();
 
     Downloader *downloader;
     Q_INVOKABLE int startDownload();

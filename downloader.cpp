@@ -12,7 +12,7 @@ Thread::Thread(Downloader *parent, const File *file)
     connect(this, &Thread::threadCompleted, parent, &Downloader::onThreadCompleted);
     connect(this, &Thread::threadFailed, parent, &Downloader::onThreadFailed);
     connect(parent, &Downloader::stopped, this, &QThread::quit);
-    connect(this, &QThread::finished, this, &QThread::deleteLater);
+    connect(this, &Thread::finished, this, &Thread::deleteLater);
 }
 
 void Thread::run()
@@ -34,8 +34,10 @@ void Thread::run()
             {
                 downloadedFile.write(reply->readAll());
                 downloadedFile.close();
-                if (AssetChecker::checkFile(file->path, file->sha1) == File::fine)
+                if (AssetChecker::checkFile(file->path, file->sha1) == File::fine){
                     emit threadCompleted();
+                }
+                    
                 else
                 {
                     if (retryCount != 5)

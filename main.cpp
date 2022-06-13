@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     }
 
     AssetChecker assetChecker;
-    qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkAsset() << assetChecker.checkLibrary();
+    qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkAsset() << assetChecker.checkLibrary() << assetChecker.checkNativeLibrary();
     Downloader downloader;
     assetChecker.downloader = &downloader;
     qDebug()<<assetChecker.startDownload();

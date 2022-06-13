@@ -33,7 +33,6 @@ public:
 signals:
     void threadCompleted();
     void threadFailed();
-
 };
 
 class Downloader : public QObject
@@ -52,7 +51,7 @@ public:
     int status = completed;
 
     Q_PROPERTY(int threads READ getThreads() WRITE setThreads(int threads) NOTIFY threadsChanged());
-    int threads = 10;
+    int threads = 20;
     int getThreads();
     void setThreads(int threads);
 
