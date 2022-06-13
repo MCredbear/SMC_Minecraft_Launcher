@@ -1,4 +1,4 @@
-QT += quick network
+QT += quick network gui-private
 
 load(ccache)
 
@@ -9,6 +9,7 @@ load(ccache)
 SOURCES += \
         asset_checker.cpp \
         downloader.cpp \
+        launcher.cpp \
         main.cpp
 
 RESOURCES += qml.qrc
@@ -31,4 +32,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     asset_checker.h \
-    downloader.h
+    downloader.h \
+    launcher.h

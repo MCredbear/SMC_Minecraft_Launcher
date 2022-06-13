@@ -2,5 +2,6 @@
     "files.associations": {
         "*.qml": "qml",
         "filesystem": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
 }

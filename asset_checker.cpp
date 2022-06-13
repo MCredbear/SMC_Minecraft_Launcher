@@ -249,7 +249,6 @@ int AssetChecker::checkNativeLibrary()
                     {
                         int checkFileResult = checkFile(".minecraft/libraries/" + gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("path").toString(),
                                                         gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("sha1").toString());
-
                         switch (checkFileResult)
                         {
                         case unexisted:
@@ -314,7 +313,5 @@ int AssetChecker::startDownload()
     for (int i = 0; i < libraryList.length(); i++)
         if (libraryList.at(i).status != fine)
             downloadList.append(libraryList.at(i));
-    for (int i = 0; i < downloadList.length(); i++)
-        qDebug() << downloadList.at(i).url;
     return downloader->startDownload(&downloadList);
 }

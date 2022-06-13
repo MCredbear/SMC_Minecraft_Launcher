@@ -6,6 +6,7 @@
 
 #include "downloader.h"
 #include "asset_checker.h"
+#include "launcher.h"
 
 int main(int argc, char *argv[])
 {
@@ -29,6 +30,8 @@ int main(int argc, char *argv[])
     Downloader downloader;
     assetChecker.downloader = &downloader;
     qDebug()<<assetChecker.startDownload();
+    Launcher launcher(&assetChecker);
+    launcher.uncompressNativeLibraries();
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
