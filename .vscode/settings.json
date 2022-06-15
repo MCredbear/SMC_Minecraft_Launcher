@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "*.qml": "qml",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "list": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }

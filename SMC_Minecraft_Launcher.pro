@@ -1,4 +1,4 @@
-QT += quick network gui-private
+QT += quick network gui-private core
 
 load(ccache)
 

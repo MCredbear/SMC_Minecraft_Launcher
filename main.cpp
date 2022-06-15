@@ -26,12 +26,13 @@ int main(int argc, char *argv[])
     }
 
     AssetChecker assetChecker;
-    qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkAsset() << assetChecker.checkLibrary() << assetChecker.checkNativeLibrary();
+    //qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkAsset() << assetChecker.checkLibrary() << assetChecker.checkNativeLibrary();
     Downloader downloader;
     assetChecker.downloader = &downloader;
-    qDebug()<<assetChecker.startDownload();
+    //qDebug()<<assetChecker.startDownload();
     Launcher launcher(&assetChecker);
-    launcher.uncompressNativeLibraries();
+    //launcher.uncompressNativeLibraries();
+    launcher.launchGame();
 
     QQmlApplicationEngine engine;
     const QUrl url(QStringLiteral("qrc:/main.qml"));
