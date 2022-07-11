@@ -10,7 +10,7 @@
 #include "asset_checker.h"
 #include "launcher.h"
 #include "logger.h"
-#include "game_list.h"
+#include "settings.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,9 +38,11 @@ int main(int argc, char *argv[])
     //Launcher launcher(&assetChecker);
     //launcher.uncompressNativeLibraries();
     //launcher.launchGame();
+    Settings settings;
+
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("gameListModel", QVariant::fromValue(gameList));;
+    engine.rootContext()->setContextProperty("gameListModel", QVariant::fromValue(settings.gameList));;
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

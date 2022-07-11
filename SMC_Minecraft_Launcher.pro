@@ -37,7 +37,6 @@ HEADERS += \
     asset_checker.h \
     downloader.h \
     game.h \
-    game_list.h \
     launcher.h \
     logger.h \
     settings.h
