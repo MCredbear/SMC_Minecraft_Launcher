@@ -20,7 +20,7 @@
         {
             "type": "shell",
             "label": "qmake  Debug",
-            "command": "/opt/Qt/6.2.4/gcc_64/bin/qmake",
+            "command": "/home/redbear/Qt/6.2.4/gcc_64/bin/qmake",
             "args": [
                 "../SMC_Minecraft_Launcher.pro",
                 "-spec",

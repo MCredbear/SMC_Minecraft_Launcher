@@ -9,8 +9,11 @@ load(ccache)
 SOURCES += \
         asset_checker.cpp \
         downloader.cpp \
+        game.cpp \
         launcher.cpp \
-        main.cpp
+        logger.cpp \
+        main.cpp \
+        settings.cpp
 
 RESOURCES += qml.qrc
 
@@ -33,4 +36,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     asset_checker.h \
     downloader.h \
-    launcher.h
+    game.h \
+    game_list.h \
+    launcher.h \
+    logger.h \
+    settings.h
