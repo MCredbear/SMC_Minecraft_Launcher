@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>Material_Button.qml</file>
+        <file>Material_Image.qml</file>
+        <file>Material_Rectangle.qml</file>
     </qresource>
 </RCC>

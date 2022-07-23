@@ -13,10 +13,12 @@ class Logger : public QObject
 public:
     explicit Logger(QObject *parent = nullptr);
 
-    Q_INVOKABLE QByteArray loginMojang(QString username, QString password);
+    static Q_INVOKABLE QByteArray loginMojang(QString username, QString password);
 
 // 由于我办不了VESA卡，注册不了微软的Azure服务，所以没法用xbox登录
-//    Q_INVOKABLE QByteArray loginXbox(QString username, QString password);
+//   static Q_INVOKABLE QByteArray loginXbox(QString username, QString password);
+
+    static Q_INVOKABLE QByteArray loginSMC(QString username, QString password);
 
 signals:
 

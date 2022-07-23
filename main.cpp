@@ -30,18 +30,16 @@ int main(int argc, char *argv[])
         }
     }
 
-    //AssetChecker assetChecker;
-    //qDebug()<< assetChecker.checkGame() << assetChecker.checkGameJson() << assetChecker.checkAsset() << assetChecker.checkLibrary() << assetChecker.checkNativeLibrary();
-    //Downloader downloader;
-    //assetChecker.downloader = &downloader;
-    //qDebug()<<assetChecker.startDownload();
-    //Launcher launcher(&assetChecker);
-    //launcher.uncompressNativeLibraries();
-    //launcher.launchGame();
-    Settings settings;
 
+    Settings settings;
+    AssetChecker assetChecker(&settings);
+    Logger logger;
+    Launcher launcher(&settings, &assetChecker);
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("settings", &settings);
+    engine.rootContext()->setContextProperty("assetChecker", &assetChecker);
+    engine.rootContext()->setContextProperty("launcher", &launcher);
     engine.rootContext()->setContextProperty("gameListModel", QVariant::fromValue(settings.gameList));;
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));

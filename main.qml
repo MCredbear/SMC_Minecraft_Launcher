@@ -228,7 +228,8 @@ MouseArea {
             }
         }
 
-        Rectangle {
+    Rectangle {
+        id: rectangle
             anchors.fill: parent
             color: "#17191a"
             radius: 8
@@ -279,6 +280,19 @@ MouseArea {
                     anchors.horizontalCenter: parent.horizontalCenter
                     rotation: -45
                 }
+            }
+
+            Text {
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.topMargin: 6
+                anchors.leftMargin: 10
+                verticalAlignment: Text.AlignVCenter
+                font.family: "Arial"
+                font.weight: Font.Light
+                font.pointSize: 20
+                color: "#ffffff"
+                text: "SMC Minecraft Launcher"
             }
 
             Button {
@@ -345,42 +359,23 @@ MouseArea {
                 }
             }
 
-            Button {
+            Material_Button {
                 id: launchButton
                 x: 634
                 y: 361
                 width: 144
                 height: 114
-                topInset: 0
-                bottomInset: 0
-                background: Rectangle {
-                    id: launchButtonBackground
-                    color: "#00ff33"
-                    radius: 4
-                    Ripple {
-                        clipRadius: 4
-                        width: parent.width
-                        height: parent.height
-                        pressed: launchButton.pressed
-                        anchor: launchButton
-                        active: launchButton.down || launchButton.visualFocus || launchButton.hovered
-                        color: "#26000000"
-                        layer.enabled: true
-                        layer.effect: OpacityMask {
-                            maskSource: launchButtonBackground
-                        }
-                    }
-                }
-                layer.enabled: true
-                layer.effect: ElevationEffect {
-                    elevation: launchButton.pressed? 1: 8
-                }
+                color: "#85ff00"
+                rippleColor: "#2f000000"
                 Text {
                     text: qsTr("启动游戏")
                     anchors.fill: parent
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     font.pointSize: 18
+                }
+                onReleased: {
+                    if (gameListView.currentIndex !== -1) launcher.launchGame(gameListView.currentIndex)
                 }
             }
 
@@ -396,61 +391,29 @@ MouseArea {
                 layer.effect: ElevationEffect {
                     elevation: 8
                 }
-                Text {
-                    color: "#ffffff"
+                Material_Image {
                     anchors.fill: parent
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    font.pointSize: 19
-                    text: qsTr("新闻什么的还没有捏")
+                    anchors.bottomMargin: 50
+                    source: "file:/home/redbear/SMC_Minecraft_Launcher/pure_background.png"
+                    fillMode: Image.PreserveAspectCrop
+                    radius: 4
+                    roundLeftTop: true
+                    roundRightTop: true
+                    roundRightBottom: false
+                    roundLeftBottom: false
                 }
-
-//                Image {
-//                    id: image
-//                    x: 0
-//                    y: 0
-//                    width: parent.width
-//                    height: parent.height - 50
-//                    source: "file:/home/redbear/Pictures/illust_66908482_20210127_160011.png"
-//                    layer.enabled: true
-//                    layer.effect: OpacityMask { // 上面有圆角，下面没圆角
-//                        maskSource: Rectangle {
-//                            width: image.width
-//                            height: image.height
-//                            radius: 4
-//                            Rectangle {
-//                                width: 4
-//                                height: 4
-//                                anchors.left: parent.left
-//                                anchors.bottom: parent.bottom
-//                            }
-//                            Rectangle {
-//                                width: 4
-//                                height: 4
-//                                anchors.right: parent.right
-//                                anchors.bottom: parent.bottom
-//                            }
-//                        }
-//                    }
-//                }
-                //        Rectangle {
-                //            id: mask
-                //            x: 0
-                //            y: 0
-                //            width: 284
-                //            height: 152
-                //            visible: false
-                //            radius: 4
-                //            color: "#17191a"
-                //        }
-                //        OpacityMask {
-                //            x: 0
-                //            y: 0
-                //            width: 284
-                //            height: 152
-                //            source: image
-                //            maskSource: mask
-                //        }
+                Text {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    anchors.rightMargin: 10
+                    anchors.leftMargin: 10
+                    height: 50
+                    color: "#ffffff"
+                    text: qsTr("新闻")
+                    verticalAlignment: Text.AlignVCenter
+                    font.pointSize: 20
+                }
             }
 
 
@@ -485,36 +448,12 @@ MouseArea {
                         font.pointSize: 18
                     }
 
-                    Button {
+                    Material_Button {
                         id: changeUserNameButton
                         width: parent.width - 20
                         height: 50
                         anchors.horizontalCenter: parent.horizontalCenter
-                        topInset: 0
-                        bottomInset: 0
-                        background: Rectangle {
-                            id: changeUserNameButtonBackground
-                            color: "#4815b7"
-                            radius: 4
-                            layer.enabled: true
-                            layer.effect: ElevationEffect {
-                                elevation: 8
-                            }
-
-                            Ripple {
-                                clipRadius: 4
-                                width: parent.width
-                                height: parent.height
-                                pressed: changeUserNameButton.pressed
-                                anchor: changeUserNameButton
-                                active: changeUserNameButton.down || changeUserNameButton.visualFocus || changeUserNameButton.hovered
-                                color: "#26000000"
-                                layer.enabled: true
-                                layer.effect: OpacityMask {
-                                    maskSource: changeUserNameButtonBackground
-                                }
-                            }
-                        }
+                        color: "#4815b7"
                         Text {
                             text: qsTr("更改用户名")
                             anchors.fill: parent
@@ -542,13 +481,8 @@ MouseArea {
             ListView {
                 id: gameListView
                 anchors.fill: parent
-                model: ListModel {
-                    ListElement {
-                        version: "1.19-pure"
-                        background: "pure_background.png"
-                    }
-                }
-                Component.onCompleted: model = gameListModel
+                model: gameListModel
+                currentIndex: -1
                 delegate: Button {
                     id: gameVersionButton
                     width: parent.width
@@ -556,6 +490,9 @@ MouseArea {
                     anchors.horizontalCenter: parent.horizontalCenter
                     topInset: 0
                     bottomInset: 0
+                    onReleased: {
+                        gameListView.currentIndex = index
+                    }
                     Text {
                         color: "#3d3d3d"
                         anchors.fill: parent
@@ -566,7 +503,7 @@ MouseArea {
                     }
                     background: Rectangle {
                         id: gameVersionButtonBackground
-                        color: gameList.color
+                        color: (gameListView.currentIndex == index)? "#333333" : gameList.color
                         radius: 4
                         Ripple {
                             clipRadius: 4
@@ -578,7 +515,10 @@ MouseArea {
                             color: "#26000000"
                             layer.enabled: true
                             layer.effect: OpacityMask {
-                                maskSource: gameVersionButtonBackground
+                                maskSource: Rectangle{
+                                    width: gameVersionButtonBackground.width
+                                    height: gameVersionButtonBackground.height
+                                }
                             }
                         }
                     }
@@ -592,6 +532,6 @@ MouseArea {
 
     /*##^##
 Designer {
-    D{i:0;formeditorZoom:1.1}
+    D{i:0;formeditorZoom:0.5}
 }
 ##^##*/

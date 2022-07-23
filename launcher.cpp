@@ -1,17 +1,24 @@
 #include "launcher.h"
 
-Launcher::Launcher(AssetChecker *assetChecker, QObject *parent)
-    : QObject{parent}
+Launcher::Launcher(Settings *settings, AssetChecker *assetChecker, QObject *parent)
+    : QObject{parent}, settings(settings), assetChecker(assetChecker)
 {
-    this->assetChecker = assetChecker;
 }
 
 Launcher::~Launcher()
 {
-    gameProcess->kill();
+    if (!gameProcess) gameProcess->kill();
 }
 
-void Launcher::uncompressNativeLibraries()
+void Launcher::login(QString username, QString password)
+{
+    QByteArray jsonData = Logger::loginSMC(username, password);
+    QJsonDocument json = QJsonDocument::fromJson(jsonData);
+    uuid = json.object()["selectedProfile"].toObject()["id"].toString();
+    accessToken = json.object()["accessToken"].toString();
+}
+
+void Launcher::uncompressNativeLibraries(int index)
 {
 #ifdef Q_OS_LINUX
     const QString nativeOS = "natives-linux";
@@ -24,38 +31,79 @@ void Launcher::uncompressNativeLibraries()
 #endif
 
     QDir nativeDir;
-    if (!nativeDir.exists("natives/"))
-        nativeDir.mkdir("natives/");
-    assetChecker->gameJsonFile.open(QIODevice::ReadOnly);
-    QByteArray gameJsonData = assetChecker->gameJsonFile.readAll();
-    assetChecker->gameJsonFile.close();
-    QJsonDocument gameJson = QJsonDocument::fromJson(gameJsonData);
+    if (!nativeDir.exists(".minecraft/versions/" + settings->gameList.at(index)->version + "/natives/"))
+        nativeDir.mkdir(".minecraft/versions/" + settings->gameList.at(index)->version + "/natives/");
+    QFile gameJsonFile("./.minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".json");
+    gameJsonFile.open(QIODevice::ReadOnly);
+    QJsonDocument gameJson = QJsonDocument::fromJson(gameJsonFile.readAll());
+    gameJsonFile.close();
     for (int i = 0; i < gameJson.object().value("libraries").toArray().count(); i++)
     {
         if (gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().contains("classifiers"))
             if (gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().contains(nativeOS))
             {
                 QZipReader zipReader(".minecraft/libraries/" + gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().value("classifiers").toObject().value(nativeOS).toObject().value("path").toString());
-                zipReader.extractAll("natives/");
+                zipReader.extractAll(".minecraft/versions/" + settings->gameList.at(index)->version + "/natives/");
             }
     }
 }
 
-void Launcher::launchGame()
+void Launcher::launchGame(int index)
 {
     gameProcess = new QProcess();
     connect(gameProcess, &QProcess::readyReadStandardOutput, this, &Launcher::onNewOutput);
     connect(gameProcess, &QProcess::readyReadStandardError, this, &Launcher::onNewOutput);
-    gameProcess->start(javaPath, generateArguments());
+    login(settings->account, settings->password);
+    uncompressNativeLibraries(index);
+    gameProcess->start(javaPath, generateArguments(index));
 }
 
-QStringList Launcher::generateArguments()
+QString Launcher::gamePath(int index)
+{
+    return ".minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".jar";
+}
+
+QString Launcher::mx(int index)
+{
+    return settings->gameList.at(index)->maxMemory;
+}
+
+QString Launcher::javaLibraryPath(int index)
+{
+    return ".minecraft/versions/" + settings->gameList.at(index)->version + "/natives/";
+}
+
+QString Launcher::username()
+{
+    return settings->account;
+}
+
+QString Launcher::assetIndex(int index)
+{
+    QFile gameJsonFile("./.minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".json");
+    gameJsonFile.open(QIODevice::ReadOnly);
+    QJsonDocument gameJson = QJsonDocument::fromJson(gameJsonFile.readAll());
+    gameJsonFile.close();
+    return gameJson.object()["assetIndex"].toObject()["id"].toString();
+}
+
+QString Launcher::width(int index)
+{
+    return settings->gameList.at(index)->width;
+}
+
+QString Launcher::height(int index)
+{
+    return settings->gameList.at(index)->height;
+}
+
+QStringList Launcher::generateArguments(int index)
 {
     QStringList arguments;
 
     // JVM arguments
     arguments << "-XX:HeapDumpPath=" + HeapDumpPath
-              << "-Xmx" + mx
+              << "-Xmx" + mx(index)
               << "-Xmn128m"
               << "-XX:+UnlockExperimentalVMOptions"
               << "-XX:+UseG1GC"
@@ -68,10 +116,10 @@ QStringList Launcher::generateArguments()
               << "-XX:-DontCompileHugeMethods";
 
     // System arguments DO NOT USE DOUBLE-BYTE ENCODE IN THE PATH
-    arguments << "-Djava.library.path=" + javaLibraryPath
+    arguments << "-Djava.library.path=" + javaLibraryPath(index)
               << "-Dminecraft.launcher.brand=" + minecraftLauncherBrand
               << "-Dminecraft.launcher.version=" + minecraftLauncherVersion
-              << "-Dminecraft.client.jar=.minecraft/versions/" + GAME_VERSION + "/" + GAME_VERSION + ".jar"
+              << "-Dminecraft.client.jar=.minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".jar"
               << "-Dfile.encoding=UTF-8"
               << "-Duser.home=null"
               << "-Dfml.ignoreInvalidMinecraftCertificates=true"
@@ -83,10 +131,10 @@ QStringList Launcher::generateArguments()
     // class path
     QString classPath;
     QStringList classPathList;
-    assetChecker->gameJsonFile.open(QIODevice::ReadOnly);
-    QByteArray gameJsonData = assetChecker->gameJsonFile.readAll();
-    assetChecker->gameJsonFile.close();
-    QJsonDocument gameJson = QJsonDocument::fromJson(gameJsonData);
+    QFile gameJsonFile("./.minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".json");
+    gameJsonFile.open(QIODevice::ReadOnly);
+    QJsonDocument gameJson = QJsonDocument::fromJson(gameJsonFile.readAll());
+    gameJsonFile.close();
     for (int i = 0; i < gameJson.object().value("libraries").toArray().count(); i++)
     {
         if (!gameJson.object().value("libraries").toArray().at(i).toObject().value("downloads").toObject().contains("classifiers"))
@@ -107,21 +155,26 @@ QStringList Launcher::generateArguments()
             classPathList.removeAt(i);
 #endif
     }
-    classPathList.append(".minecraft/versions/1.17.1/1.17.1.jar");
+    classPathList.append(".minecraft/versions/" + settings->gameList.at(index)->version +"/" + settings->gameList.at(index)->version + ".jar");
     classPath = classPathList.join(":");
     arguments << "-cp" << classPath;
 
+    // Java agent arguments
+    arguments << "-javaagent:./authlib-injector.jar=http://ddns.smcserver.cn:9010/api/yggdrasil/"
+              << "-Dauthlibinjector.side=client";
+
     // Minecraft arguments
     arguments << mainClass
-              << "--username" << username
+              << "--username" << username()
               << "--version" << version
               << "--gameDir" << gameDir
               << "--assetsDir" << assetsDir
-              << "--assetIndex" << assetIndex
+              << "--assetIndex" << assetIndex(index)
               << "--uuid" << uuid
               << "--accessToken" << accessToken
               << "--userType" << userType
               << "--versionType" << versionType;
+              qDebug()<<arguments;
     return arguments;
 }
 

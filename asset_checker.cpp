@@ -1,19 +1,18 @@
 #include "asset_checker.h"
 
-AssetChecker::AssetChecker(QObject *parent)
-    : QObject{parent}
+AssetChecker::AssetChecker(Settings *settings, QObject *parent)
+    : QObject{parent}, settings(settings)
 {
-    gameFile.setFileName("./.minecraft/versions/" + GAME_VERSION + "/" + GAME_VERSION + ".jar");
-    gameJsonFile.setFileName("./.minecraft/versions/" + GAME_VERSION + "/" + GAME_VERSION + ".json");
 }
 
-int AssetChecker::checkGame()
+int AssetChecker::checkGame(int index)
 {
+    gameFile.setFileName("./.minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".jar");
     if (gameFile.exists())
     {
         if (gameFile.open(QIODevice::ReadOnly))
         {
-            if (QCryptographicHash::hash(gameFile.readAll(), QCryptographicHash::Sha1).toHex() == GAME_HASH)
+            if (QCryptographicHash::hash(gameFile.readAll(), QCryptographicHash::Sha1).toHex() == settings->gameList.at(index)->hash)
             {
                 gameFile.close();
                 return fine;
@@ -28,13 +27,14 @@ int AssetChecker::checkGame()
         return unexisted;
 }
 
-int AssetChecker::checkGameJson()
+int AssetChecker::checkGameJson(int index)
 {
+    gameJsonFile.setFileName("./.minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".json");
     if (gameJsonFile.exists())
     {
         if (gameJsonFile.open(QIODevice::ReadOnly))
         {
-            if (QCryptographicHash::hash(gameJsonFile.readAll(), QCryptographicHash::Sha1).toHex() == GAME_JSON_HASH)
+            if (QCryptographicHash::hash(gameJsonFile.readAll(), QCryptographicHash::Sha1).toHex() == settings->gameList.at(index)->jsonHash)
             {
                 gameJsonFile.close();
                 return fine;
@@ -49,10 +49,11 @@ int AssetChecker::checkGameJson()
         return unexisted;
 }
 
-int AssetChecker::checkAsset()
+int AssetChecker::checkAsset(int index)
 {
+    gameJsonFile.setFileName("./.minecraft/versions/" + settings->gameList.at(index)->version + "/" + settings->gameList.at(index)->version + ".json");
     int checkAssetResult = assetFine;
-    int checkGameJsonResult = checkGameJson();
+    int checkGameJsonResult = checkGameJson(index);
     if (checkGameJsonResult == AssetChecker::fine)
     {
         gameJsonFile.open(QIODevice::ReadOnly);
@@ -120,7 +121,7 @@ int AssetChecker::checkAsset()
                                 {
                                     assetJsonFile.write(getReply->readAll());
                                     assetJsonFile.close();
-                                    return checkAsset();
+                                    return checkAsset(index);
                                 }
                                 else
                                     return cannotGetIndex;
@@ -156,7 +157,7 @@ int AssetChecker::checkAsset()
                         {
                             assetJsonFile.write(getReply->readAll());
                             assetJsonFile.close();
-                            return checkAsset();
+                            return checkAsset(index);
                         }
                         else
                             return cannotGetIndex;
@@ -175,10 +176,10 @@ int AssetChecker::checkAsset()
         return checkGameJsonResult;
 }
 
-int AssetChecker::checkLibrary()
+int AssetChecker::checkLibrary(int index)
 {
     int checkLibraryResult = libraryFine;
-    int checkGameJsonResult = checkGameJson();
+    int checkGameJsonResult = checkGameJson(index);
     if (checkGameJsonResult == AssetChecker::fine)
     {
         gameJsonFile.open(QIODevice::ReadOnly);
@@ -220,7 +221,7 @@ int AssetChecker::checkLibrary()
         return checkLibraryResult;
 }
 
-int AssetChecker::checkNativeLibrary()
+int AssetChecker::checkNativeLibrary(int index)
 {
 #ifdef Q_OS_LINUX
     const QString nativeOS = "natives-linux";
@@ -232,7 +233,7 @@ int AssetChecker::checkNativeLibrary()
     const QString nativeOS = "natives-macos";
 #endif
     int checkLibraryResult = libraryFine;
-    int checkGameJsonResult = checkGameJson();
+    int checkGameJsonResult = checkGameJson(index);
     if (checkGameJsonResult == AssetChecker::fine)
     {
         gameJsonFile.open(QIODevice::ReadOnly);

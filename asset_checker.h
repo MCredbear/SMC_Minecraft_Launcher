@@ -17,12 +17,10 @@
 #include <QEventLoop>
 
 #include "downloader.h"
+#include "settings.h"
+#include "game.h"
 
 class Downloader;
-
-const QByteArray GAME_VERSION = "1.17.1";
-const QByteArray GAME_HASH = "8d9b65467c7913fcf6f5b2e729d44a1e00fde150";
-const QByteArray GAME_JSON_HASH = "a769e66272ae058c60c27a11b5adb04d7065884a";
 
 class File
 {
@@ -44,7 +42,7 @@ class AssetChecker : public QObject
 {
     Q_OBJECT
 public:
-    explicit AssetChecker(QObject *parent = nullptr);
+    explicit AssetChecker(Settings *settings, QObject *parent = nullptr);
 
     enum fileStatus
     {
@@ -58,8 +56,8 @@ public:
 
     QFile gameFile, gameJsonFile;
 
-    Q_INVOKABLE int checkGame();
-    Q_INVOKABLE int checkGameJson();
+    Q_INVOKABLE int checkGame(int index);
+    Q_INVOKABLE int checkGameJson(int index);
 
     QList<File> assetList, libraryList;
     QFile assetJsonFile;
@@ -76,12 +74,14 @@ public:
         libraryBroken = 9,
         libraryFine = 10
     };
-    Q_INVOKABLE int checkAsset();
-    Q_INVOKABLE int checkLibrary();
-    Q_INVOKABLE int checkNativeLibrary();
+    Q_INVOKABLE int checkAsset(int index);
+    Q_INVOKABLE int checkLibrary(int index);
+    Q_INVOKABLE int checkNativeLibrary(int index);
 
     Downloader *downloader;
     Q_INVOKABLE int startDownload();
+
+    Settings *settings;
 
 signals:
 };

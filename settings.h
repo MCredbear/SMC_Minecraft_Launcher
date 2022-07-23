@@ -8,19 +8,21 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 #include <QJsonValue>
+#include <QDebug>
 
 #include "game.h"
 
 /*
 {
-    "users": "MCredbear",
+    "user": {
+        "name": "MCredbear",
+        "password": "1145141919810",
+    },
     "gameList": [
         "1.19": {
             "gameVersion": "1.19",
-            "gameHash": "",
-            "gameJsonHash": "",
-            "background": "",
             "maxMemory": ""
+            "jrePath": "jre17/bin/java"
         }
     ]
 }
@@ -35,11 +37,28 @@ public:
     QFile settingsFile;
     QJsonDocument settingsJson;
 
-    QList<Game*> gameList;
+    Q_PROPERTY (QString account READ getAccount WRITE setAccount NOTIFY onAccountChanged)
+    QString account;
+    QString getAccount();
+    void setAccount(QString account);
 
+    Q_PROPERTY (QString password READ getPassword WRITE setPassword NOTIFY onPasswordChanged)
+    QString password;
+    QString getPassword();
+    void setPassword(QString password);
+
+    QList<Game*> gameList, defaultGameList;
+
+    void readSettingsFile();
+    void createNewSettingsFile();
+    void saveSettingsFile();
 signals:
-    void onSettingsBroken();
+    void onAccountChanged();
+    void onPasswordChanged();
     void onSettingsUnexisted();
+    void onSettingsBroken();
+    void onSettingsUnreadable();
+    void onSettingsUnwriteable();
 };
 
 #endif // SETTINGS_H

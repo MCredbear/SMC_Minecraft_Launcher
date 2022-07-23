@@ -2,7 +2,9 @@
     "files.associations": {
         "*.qml": "qml",
         "filesystem": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "variant": "cpp",
+        "chrono": "cpp"
     },
     "C_Cpp.errorSquiggles": "Enabled"
 }
