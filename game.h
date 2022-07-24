@@ -7,7 +7,7 @@ class Game : public QObject
 {
     Q_OBJECT
 public:
-    explicit Game(QString version, QString maxMemory, QString width, QString height,QByteArray hash,QByteArray jsonHash,QObject *parent = nullptr);
+    explicit Game(QString version, QString maxMemory, QString width, QString height, int modLoader, QByteArray hash,QByteArray jsonHash,QObject *parent = nullptr);
 
     Q_PROPERTY(QString version READ getVersion);
     QString version;
@@ -28,7 +28,10 @@ public:
     QString javaPath;
     QString getJavaPath();
     void setJavaPath(QString javaPath);
-    
+
+    enum ModLoader {NoModLoader, Forge, Fabric};
+    int modLoader;
+
     QByteArray hash;
     QByteArray jsonHash;
 

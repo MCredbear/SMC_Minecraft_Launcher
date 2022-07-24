@@ -27,7 +27,9 @@ public:
     AssetChecker *assetChecker;
     Settings *settings;
 
-    void login(QString username, QString password); // Get uuid and accessToken
+    // bool isDoubleBytePath();
+
+    bool login(QString username, QString password); // Get uuid and accessToken
 
     Q_INVOKABLE void uncompressNativeLibraries(int index);
 
@@ -45,10 +47,10 @@ public:
     QString minecraftLauncherVersion = "114514";
 
     //Minecraft arguments
-    QString mainClass = "net.minecraft.client.main.Main";
+    QString mainClass(int index);
     QString username();
-    QString version = "SMC_Minecrat_Launcher_114514";
-    QString gameDir = ".minecraft/";
+    QString version(int index);
+    QString gameDir(int index);
     QString assetsDir = ".minecraft/assets/";
     QString assetIndex(int index);
     QString uuid;
@@ -58,13 +60,16 @@ public:
     QString width(int index);
     QString height(int index);
 
+    QStringList forgeArguments(int index);
+
     QStringList generateArguments(int index);
     QProcess *gameProcess;
 
 signals:
-
+    void onLoginFailed();
 public slots:
     void onNewOutput();
+    
 };
 
 #endif // LAUNCHER_H

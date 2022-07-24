@@ -1,7 +1,7 @@
 #include "game.h"
 
-Game::Game(QString version, QString maxMemory, QString width, QString height, QByteArray hash, QByteArray jsonHash, QObject *parent)
-    : QObject{parent}, version(version), maxMemory(maxMemory), width(width), height(height), hash(hash), jsonHash(jsonHash)
+Game::Game(QString version, QString maxMemory, QString width, QString height, int modLoader, QByteArray hash, QByteArray jsonHash, QObject *parent)
+    : QObject{parent}, version(version), maxMemory(maxMemory), width(width), height(height), modLoader(modLoader), hash(hash), jsonHash(jsonHash)
 {
 }
 

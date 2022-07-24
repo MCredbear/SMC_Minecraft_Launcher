@@ -35,7 +35,6 @@ int main(int argc, char *argv[])
     AssetChecker assetChecker(&settings);
     Logger logger;
     Launcher launcher(&settings, &assetChecker);
-
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("settings", &settings);
     engine.rootContext()->setContextProperty("assetChecker", &assetChecker);

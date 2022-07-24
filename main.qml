@@ -259,10 +259,14 @@ MouseArea {
                         pressed: closeButton.pressed
                         anchor: closeButton
                         active: closeButton.down || closeButton.visualFocus || closeButton.hovered
-                        color: closeButton.Material.rippleColor
+                        color: "#2f000000"
                         layer.enabled: true
                         layer.effect: OpacityMask {
-                            maskSource: closeButtonBackground
+                            maskSource: Rectangle {
+                                width: closeButtonBackground.width
+                                height: closeButtonBackground.height
+                                radius: width / 2
+                            }
                         }
                     }
                 }
@@ -297,9 +301,9 @@ MouseArea {
 
             Button {
                 id: minimizeButton
-                anchors.right: closeButton.right
+                anchors.right: closeButton.left
                 anchors.top: parent.top
-                anchors.rightMargin: 44
+                anchors.rightMargin: 4
                 anchors.topMargin: 4
                 width: 40
                 height: 40
@@ -321,10 +325,14 @@ MouseArea {
                         pressed: minimizeButton.pressed
                         anchor: minimizeButton
                         active: minimizeButton.down || minimizeButton.visualFocus || minimizeButton.hovered
-                        color: minimizeButton.Material.rippleColor
+                        color: "#2f000000"
                         layer.enabled: true
                         layer.effect: OpacityMask {
-                            maskSource: minimizeButtonBackground
+                            maskSource: Rectangle {
+                                width: minimizeButtonBackground
+                                height: minimizeButtonBackground
+                                radius: width / 2
+                            }
                         }
                     }
                 }

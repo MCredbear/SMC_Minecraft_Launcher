@@ -4,8 +4,8 @@ Settings::Settings(QObject *parent)
     : QObject{parent}
 {
     settingsFile.setFileName("settings.json");
-    Game *game_1_19 = new Game("1.19", "2048m", "854", "480", "c0898ec7c6a5a2eaa317770203a1554260699994", "a864e1c23b4bc52c4357505ccc87bb4b1c0455d6");
-    Game *game_1_18_2_mod = new Game("1.18.2-mod", "4096m", "854", "480", "2e9a3e3107cca00d6bc9c97bf7d149cae163ef21", "fc60987a89922a2650b25c7c68cfe18b7aea578f");
+    Game *game_1_19 = new Game("1.19", "2048m", "854", "480", Game::Fabric, "c0898ec7c6a5a2eaa317770203a1554260699994", "a864e1c23b4bc52c4357505ccc87bb4b1c0455d6");
+    Game *game_1_18_2_mod = new Game("1.18.2-forge", "4096m", "854", "480", Game::Forge, "2e9a3e3107cca00d6bc9c97bf7d149cae163ef21", "fc60987a89922a2650b25c7c68cfe18b7aea578f");
     defaultGameList.append(game_1_19);
     defaultGameList.append(game_1_18_2_mod);
     gameList = defaultGameList;
